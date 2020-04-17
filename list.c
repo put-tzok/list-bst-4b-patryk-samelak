@@ -4,43 +4,75 @@
 #include <stdlib.h>
 #include <time.h>
 
-unsigned int ns[] = { 10, /* TODO: fill values which will be used as lists' sizes */ };
+
+unsigned int ns[] = {10, 100, 250, 500, 1000, 2000, 4000, 8000, 14000, 20000};
 
 // each list node contains an integer key value and pointer to next list node
+// każdy węzeł listy zawiera wartość klucza całkowitego i wskaźnik do następnego węzła listy
+
 struct node {
     int key;
     struct node *next;
 };
 
 // list's beginning is called the head of list
+// początek listy to nagłówek listy
 struct node *head = NULL;
 
-
 struct node* list_insert(int value) {
-    // TODO: implement
-    return NULL;
+    struct node *NewNode;
+    NewNode = (struct node*)malloc(sizeof(struct node));
+    NewNode->key = value;
+    NewNode->next = head;
+    head = NewNode;
+
 }
+
+
 
 struct node* list_search(int value) {
-    // TODO: implement
-    return NULL;
+    struct node *iter = head;
+    while(iter != NULL && iter->key != value){
+        iter=iter->next;
+    }
+    return iter;
 }
+
 
 void list_delete(int value) {
-    // TODO: implement
+    if (head->key == value){
+        head=head->next;
+    }else{
+        struct node *prev, *temp;
+        temp = head;
+        while(temp->key != value){
+            prev = temp;
+            temp = temp-> next;
+        }
+        prev->next = temp->next;
+    }
 }
 
+
 unsigned int list_size() {
-    // TODO: implement
-    return 0;
+
+    int size =0;
+    struct node *iter;
+    iter=head;
+    while (iter != NULL) {
+        size=size+1;
+        iter=iter->next;
+    }
+    return size;
 }
 
 /*
  * Fill an array with increasing values.
+ * Wypełnij tablicę rosnącymi wartościami
  *
  * Parameters:
- *      int *t:     pointer to the array
- *      int n:      number of elements in the array
+ *      int *t:     pointer to the array / wskaźnik do tablicy
+ *      int n:      number of elements in the array / liczba elemetów w tablicy
  */
 void fill_increasing(int *t, int n) {
     for (int i = 0; i < n; i++) {
@@ -50,6 +82,7 @@ void fill_increasing(int *t, int n) {
 
 /*
  * Reorder array elements in a random way.
+ * Zmiana kolejności elementów tablicy w losowy sposób
  *
  * Parameters:
  *      int *t:     pointer to the array
@@ -93,7 +126,6 @@ int main() {
 
             // reorder array elements before searching
             shuffle(t, n);
-
             // search for every element in the order present in array `t`
             clock_t search_time = clock();
             for (unsigned int k = 0; k < n; k++) {
