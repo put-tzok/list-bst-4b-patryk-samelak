@@ -5,42 +5,95 @@
 #include <signal.h>
 #include <time.h>
 
-unsigned int ns[] = { 10, /* TODO: fill values which will be used as lists' sizes */ };
+unsigned int ns[] = {10, 100, 250, 500, 1000, 2000, 4000, 8000, 14000, 20000};
 
-// each tree node contains an integer key and pointers to left and right children nodes
+
 struct node {
     int key;
     struct node *left;
     struct node *right;
 };
 
-// tree's beginning is called the root
 struct node *root = NULL;
 
+
 struct node **tree_search(struct node **candidate, int value) {
-    // TODO: implement
-    return NULL;
+    if(*candidate == NULL) {                                            //jeśli kandydat jest równy NULL
+        return candidate;                                               //zwracanie kandydata
+    }
+    
+    if (value < (**candidate).key) {                                    //jeśli kandydat jest większy niż value
+        return tree_search(&(**candidate).left, value);                 //zwrócenie kandydata na lewo
+    }
+    
+    if (value > (**candidate).key) {                                    //jeśli kandydat jest mniejszy niż value
+        return tree_search(&(**candidate).right, value);                //zwrócenie kandydata na prawo
+    }
+    return candidate;                                                   //zwracanie kandydata
 }
 
-struct node* tree_insert(int value) {
-    // TODO: implement
-    return NULL;
-}
+    struct node **candidate;
 
+struct node *tree_insert( int value) {
+    struct node *createNode = malloc(sizeof(struct node));      //przypisanie miejsca dla nowego węzła
+    candidate = tree_search(&root, value);                      //szukanie miejsca na nowy węzeł; musi pasować value
+    createNode->key = value;                                    //przypisanie wartości value
+    createNode->left = NULL;                                    //brak lewego potomka
+    createNode->right = NULL;                                   //brak prawego potomka
+    *candidate = createNode;                                    //ustawienie kandydata jako nowy węzęł
+}
 
 
 struct node **tree_maximum(struct node **candidate) {
-    // TODO: implement
-    return NULL;
+
+    if ((**candidate).right != NULL) {                          //jeśli kandydat na prawo jest różny od zera
+        return tree_maximum(&(**candidate).right);              //zwracanie tree_maxumim z kandydatem na prawo
+    }
+    return candidate;                                           //zwracanie kandydata o max wartości
 }
+
 
 void tree_delete(int value) {
-    // TODO: implement
-}
+    candidate =  tree_search(&root, value);                            
+    if ((**candidate).left == NULL && (**candidate).right == NULL) {
+        *candidate = NULL;
+    }
+    
+    else if (((**candidate).left != NULL) && ((**candidate).right == NULL)) {
+        *candidate = (**candidate).left;
+    }
+    
+    else if (((**candidate).left == NULL) && ((**candidate).right != NULL)) {
+        *candidate = (**candidate).right;
+    }
+    
+    else {
+       struct node **maxcandidate;
+        maxcandidate = tree_maximum(&(**candidate).left);
+        (**candidate).key = (**maxcandidate).key;
+        *maxcandidate = (**maxcandidate).left;
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
 
 unsigned int tree_size(struct node *element) {
-    // TODO: implement
-    return 0;
+    if(element == NULL) {
+        return 0;
+	}
+    else {
+    	return 1 + tree_size((*element).left) + tree_size((*element).right);
+    	return 0;
+    }
 }
 
 /*
@@ -118,8 +171,22 @@ void insert_random(int *t, int n) {
     }
 }
 
+void tree_insert_biject(int *t,int p,int r) {
+    if (p == r)
+        {tree_insert(t[p]);}
+    else if (r - p == 1)
+        {tree_insert(t[p]);
+        tree_insert(t[r]);}
+    else
+        {int q = p + (r - p)/2;
+        tree_insert(t[q]);
+        tree_insert_biject(t, p, q-1);
+        tree_insert_biject(t, q+1, r);}
+}
+
+
 void insert_binary(int *t, int n) {
-    // TODO: implement
+   // TODO: implement
 }
 
 char *insert_names[] = { "Increasing", "Random", "Binary" };
@@ -141,13 +208,13 @@ int main(int argc, char **argv) {
             insert(t, n);
             insertion_time = clock() - insertion_time;
 
-            assert(tree_size(root) == n);       // after all insertions, tree size must be `n`
+            assert(tree_size(root) == n);       // after all insertions, tree size must be n
             assert(is_bst(root));               // after all insertions, tree must be valid BST
 
             // reorder array elements before searching
             shuffle(t, n);
 
-            // search for every element in the order present in array `t`
+            // search for every element in the order present in array t
             clock_t search_time = clock();
             for (unsigned int k = 0; k < n; k++) {
                 struct node **pnode = tree_search(&root, t[k]);
@@ -160,7 +227,7 @@ int main(int argc, char **argv) {
             // reorder array elements before deletion
             shuffle(t, n);
 
-            // delete every element in the order present in array `t`
+            // delete every element in the order present in array t
             for (unsigned int l = 0, m = n; l < n; l++, m--) {
                 assert(tree_size(root) == m);   // tree size must be equal to the expected value
                 tree_delete(t[l]);
